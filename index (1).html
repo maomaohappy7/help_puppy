@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小院萌宠：汪汪接力日记</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        
+        /* Tab Navigation */
+        .tabs { display: flex; background: #fff; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+        .tab { flex: 1; text-align: center; padding: 14px 0; font-size: 15px; font-weight: bold; color: #666; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #42b883; color: #fff; }
+
+        /* Card styles */
+        .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-title { font-size: 17px; font-weight: bold; color: #2c3e50; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        
+        /* Video Container */
+        .video-box { width: 100%; border-radius: 10px; overflow: hidden; background: #000; margin-bottom: 15px; position: relative; aspect-ratio: 16/9; }
+        .video-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Story / Status text */
+        .story-text { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 10px; text-align: justify; }
+        .status-list { display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #444; background: #fdfefe; padding: 12px; border-radius: 8px; border: 1px solid #eef2f3; }
+        .status-item span { font-weight: bold; color: #2c3e50; }
+
+        /* Action Buttons */
+        .action-grid { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; border-radius: 25px; font-size: 15px; font-weight: bold; padding: 12px 0; text-align: center; border: none; cursor: pointer; }
+        .primary-btn { background: #ff7675; color: #fff; }
+        .secondary-btn { background: #00b894; color: #fff; }
+
+        /* Wishlist */
+        .notice { background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; font-size: 13px; margin-bottom: 15px; text-align: center; line-height: 1.5; }
+        .copy-btn { margin-top: 10px; background: #ffeeba; color: #856404; font-size: 13px; border: none; padding: 6px 16px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+        
+        .item-card { display: flex; background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; align-items: center; border: 1px solid #f0f0f0; }
+        .item-img { width: 70px; height: 70px; border-radius: 8px; background: #eee; object-fit: cover; flex-shrink: 0; }
+        .item-info { margin-left: 12px; flex: 1; }
+        .item-name { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .item-price { font-size: 13px; color: #e74c3c; margin-bottom: 4px; }
+        .item-progress { font-size: 12px; color: #7f8c8d; }
+        .support-btn { background: #ff7675; color: #fff; font-size: 12px; padding: 6px 14px; border-radius: 15px; border: none; cursor: pointer; }
+
+        /* Form */
+        .form-item { margin-bottom: 15px; }
+        .label { font-size: 14px; color: #444; display: block; margin-bottom: 6px; font-weight: bold; }
+        .input, .textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; background: #fafafa; }
+        .textarea { height: 100px; resize: none; }
+        .submit-btn { width: 100%; margin-top: 10px; background: #00b894; color: #fff; border-radius: 25px; font-size: 16px; font-weight: bold; padding: 12px 0; border: none; cursor: pointer; }
+
+        /* Custom Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: #fff; width: 85%; max-width: 400px; border-radius: 12px; padding: 20px; text-align: center; }
+        .modal-title { font-size: 17px; font-weight: bold; margin-bottom: 10px; color: #333; }
+        .modal-content { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; text-align: left; background: #f9f9f9; padding: 12px; border-radius: 6px; }
+        .modal-btn { background: #42b883; color: #fff; border: none; padding: 10px 25px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; }
+
+        .tips { font-size: 12px; color: #b2bec3; text-align: center; padding: 10px; line-height: 1.5; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Tab Navigation -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">小院日记</div>
+        <div class="tab" onclick="switchTab(1)">爱心心愿单</div>
+        <div class="tab" onclick="switchTab(2)">领养申请</div>
+    </div>
+
+    <!-- Page 1: Index / Diary -->
+    <div class="page-section active" id="sec-index">
+        <div class="card">
+            <div class="card-title">🎥 萌宝实时视频</div>
+            <!-- Video player replacing static images -->
+            <div class="video-box">
+                <video controls poster="https://images.unsplash.com/photo-1543466835-00a7907e9de1">
+                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
+            </div>
+            <div class="card-title" style="margin-top: 15px;">🏠 小院现状说明</div>
+            <p class="story-text">大家好，我是小明。目前怀着宝宝在家待产，家里还有一位照顾我的婆婆。我们在隔壁无人居住的空院子里暂时安置了两只刚被遗弃的小奶狗。因为家里的已有一只狗子，其他村民家家都有1-2只狗子，无力抚养它们了。希望有爱心的网友接力帮它们找到温暖的家。</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📢 今日萌宝状况播报</div>
+            <div class="status-list">
+                <div class="status-item"><span>🥛 今日饮食：</span>早晚各喂了1次奶粉；小狗的妈妈来喂奶2-3次。</div>
+                <div class="status-item"><span>🏃 活动情况：</span>天气冷，狗子在草堆里睡觉，我和狗妈妈去喂食会出来活动。</div>
+                <div class="status-item"><span>🏡 庇护环境：</span>农村无人居住的院子里，狗子休息的房子里有草窝，无风，不冷。</div>
+            </div>
+        </div>
+
+        <div class="action-grid">
+            <button class="btn primary-btn" onclick="switchTab(1)">🎁 查看物资心愿单</button>
+            <button class="btn secondary-btn" onclick="switchTab(2)">🏠 我要申请领养</button>
+        </div>
+        
+        <div class="tips">
+            *提示：拒绝现金捐助，所有物资可通过网购直接寄送，公开透明，谢谢大家的善良！
+        </div>
+    </div>
+
+    <!-- Page 2: Wishlist -->
+    <div class="page-section" id="sec-wishlist">
+        <div class="notice">
+            <strong>💡 温馨提示：</strong>拒绝现金捐助，支持直接网购寄送。收货地址请点击下方按钮复制。
+            <br>
+            <button class="copy-btn" onclick="copyAddress()">复制收货地址与信息</button>
+        </div>
+
+        <div class="item-card">
+            <img class="item-img" src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e" alt="奶粉">
+            <div class="item-info">
+                <div class="item-name">小奶狗专用羊奶粉 400g</div>
+                <div class="item-price">筹款目标：2 盒</div>
+                <div class="item-progress">已筹：0 / 2 盒</div>
+            </div>
+            <button class="support-btn" onclick="supportItem('小奶狗专用羊奶粉 400g')">我来支援</button>
+        </div>
+
+        <div class="item-card">
+            <img class="item-img" src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1" alt="驱虫药">
+            <div class="item-info">
+                <div class="item-name">驱虫滴剂 (内外同驱)</div>
+                <div class="item-price">参考价：¥58</div>
+                <div class="item-progress">已筹：0 / 2 份</div>
+            </div>
+            <button class="support-btn" onclick="supportItem('驱虫滴剂 (内外同驱)')">我来支援</button>
+        </div>
+    </div>
+
+    <!-- Page 3: Adopt Form -->
+    <div class="page-section" id="sec-adopt">
+        <div class="card">
+            <div class="card-title">🏠 填写领养意向书</div>
+            <p class="story-text" style="margin-bottom: 20px;">为了确保小奶狗能去到一个真正爱护它的家庭，请如实填写以下信息（待产宝妈精力有限，非诚勿扰哦）。</p>
+            
+            <div class="form-item">
+                <label class="label">您的称呼</label>
+                <input class="input" id="inp-name" placeholder="请输入您的姓氏或昵称">
+            </div>
+
+            <div class="form-item">
+                <label class="label">联系方式 (微信/手机号)</label>
+                <input class="input" id="inp-contact" placeholder="请输入微信号或手机号">
+            </div>
+
+            <div class="form-item">
+                <label class="label">常住城市与居住情况</label>
+                <input class="input" id="inp-housing" placeholder="如：安徽合肥市自有住房/整租">
+            </div>
+
+            <div class="form-item">
+                <label class="label">养宠经验</label>
+                <textarea class="textarea" id="inp-exp" placeholder="是否有过养狗经验？家里目前是否有其他宠物？"></textarea>
+            </div>
+
+            <button class="submit-btn" onclick="submitAdopt()">提交领养申请</button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal -->
+<div class="modal-overlay" id="customModal" onclick="closeModal(event)">
+    <div class="modal">
+        <div class="modal-title" id="modalTitle">提示</div>
+        <div class="modal-content" id="modalContent">内容</div>
+        <button class="modal-btn" onclick="closeModalDirect()">确定</button>
+    </div>
+</div>
+
+<script>
+    function switchTab(index) {
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.page-section');
+        
+        tabs.forEach((t, i) => {
+            if(i === index) {
+                t.classList.add('active');
+                sections[i].classList.add('active');
+            } else {
+                t.classList.remove('active');
+                sections[i].classList.remove('active');
+            }
+        });
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function showModal(title, htmlContent) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalContent').innerHTML = htmlContent;
+        document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function closeModal(e) {
+        if(e.target.id === 'customModal') {
+            document.getElementById('customModal').style.display = 'none';
+        }
+    }
+
+    function closeModalDirect() {
+        document.getElementById('customModal').style.display = 'none';
+    }
+
+    function copyAddress() {
+        const addrText = "安徽合肥市庐江县代桥老街，收货人：小明，电话：18130020857";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(addrText).then(() => {
+                showModal('复制成功', '收货地址与信息已复制：<br><br><b>' + addrText + '</b>');
+            }).catch(() => {
+                fallbackCopy(addrText);
+            });
+        } else {
+            fallbackCopy(addrText);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showModal('复制成功', '收货地址与信息已复制：<br><br><b>' + text + '</b>');
+        } catch (err) {
+            showModal('手动复制', '请长按复制以下地址：<br><br><b>' + text + '</b>');
+        }
+        document.body.removeChild(textarea);
+    }
+
+    function supportItem(name) {
+        const addrText = "安徽合肥市庐江县代桥老街，收货人：小明，电话：18130020857";
+        showModal('爱心支援「' + name + '」', '感谢您的善意！请复制下方收货地址，在淘宝/京东自行下单寄送：<br><br><b>' + addrText + '</b><br><br><button onclick="copyAddress()" style="background:#42b883;color:#fff;border:none;padding:6px 14px;border-radius:15px;cursor:pointer;font-weight:bold;margin-top:5px;">一键复制地址</button>');
+    }
+
+    function submitAdopt() {
+        const name = document.getElementById('inp-name').value.trim();
+        const contact = document.getElementById('inp-contact').value.trim();
+        if(!name || !contact) {
+            showModal('填写不完整', '请至少填写您的称呼和联系方式，方便小明与您联系！');
+            return;
+        }
+        showModal('提交成功', '感谢您的爱心申请！小明目前在待产，看到后会尽快与您取得联系。祝您生活愉快！');
+        document.getElementById('inp-name').value = '';
+        document.getElementById('inp-contact').value = '';
+        document.getElementById('inp-housing').value = '';
+        document.getElementById('inp-exp').value = '';
+    }
+</script>
+
+</body>
+</html>
